@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Number Guessing Game</title>
+</head>
+<body>
+    <h3>Welcome to the Number Guessing Game!</h3>
+    In the left textbox enter a lower number. In the right textbox enter a larger number.
+    <br />
+    <form name="game">
+        <input type="text" name="lower_txt">
+        <input type="text" name="upper_txt">
+        <input type="button" value="Generate Secret Number" name="SecretNum_btn" onClick="SecretNum()">
+        <br />
+        <label style="color:white;" id="secret_lbl">test</label>
+        <br />
+        In the textbox below try to guess the secret number! Click the submit button to see if you are correct!
+        <br />
+        <input type="text" name="Guess_txt" />
+        <input type="button" value="Submit" name="Guess_btn" onclick="guessCheck()"/>
+        <br />
+        Attempts:
+        <label id="Attempts_lbl">0</label>
+        <br />
+        Your Attempt was: 
+        <label id="status_lbl"></label>
+    </form>
+
+
+    <script type="text/javascript">
+        //This function calls the SecretNum(intlower, int upper) RESTful service running on localhost
+        //It updates the UI with the return value
+        function SecretNum() {
+            var lower = null;
+            var x = document.game.lower_txt.value;
+            lower = parseInt(x);
+
+            var upper = null;
+            var y = document.game.upper_txt.value;
+            upper = parseInt(y);
+
+            var base = "http://localhost:56451/Service1.svc/NumberGenWithRange?lower=";
+            var num1 = base.concat(lower);
+            var base2 = num1.concat("&upper=");
+            result = base2.concat(upper);
+            //document.getElementById('Attempts_lbl').innerHTML = result;
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (xhttp.readyState == 4 && xhttp.status == 200)
+                    document.getElementById('secret_lbl').innerHTML = xhttp.responseText;
+            }
+            xhttp.open("GET", result);
+            xhttp.setRequestHeader("Content-type", "application/json");
+            xhttp.send();
+        }
+
+        //This function calls the checkNum(int userNum, int SecretNum) RESTful service running on localhost
+        //It updates the UI with the return value
+        function guessCheck() {
+            var userIn = null;
+            var y = document.game.Guess_txt.value;
+            userIn = parseInt(y);
+
+            var secretNum = null;
+            var x = document.getElementById('secret_lbl').textContent;
+            secretNum = parseInt(x);
+
+            let upto = 0;
+            var count = document.getElementById('Attempts_lbl').textContent;
+            count++;
+            document.getElementById('Attempts_lbl').innerHTML = count;
+
+            var base = "http://localhost:56451/Service1.svc/VerifyNum?Num1=";
+            var num1 = base.concat(userIn);
+            var base2 = num1.concat("&Num2=");
+            result = base2.concat(secretNum);
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (xhttp.readyState == 4 && xhttp.status == 200)
+                    document.getElementById('status_lbl').innerHTML = xhttp.responseText;
+            }
+            xhttp.open("GET", result);
+            xhttp.setRequestHeader("Content-type", "application/json");
+            xhttp.send();
+        }
+    </script>
+</body>
+</html>
